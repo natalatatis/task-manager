@@ -1,25 +1,17 @@
 import React, { useState } from "react";
 import {
   TextField,
-  Select,
-  MenuItem,
   Button,
-  Container,
-  InputLabel,
-  FormControl,
-  Radio,
-  RadioGroup,
   FormControlLabel,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
   Box,
-  LinearProgress,
   Typography,
   Checkbox,
   FormGroup,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
+//current date
 function App() {
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -27,6 +19,23 @@ function App() {
     month: "long",
     day: "numeric",
   });
+
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
+
+  //adds a new task
+  const handleAddTask = () => {
+    if (newTask.trim() !== "") {
+      setTasks([...tasks, newTask.trim()]);
+      setNewTask("");
+    }
+  };
+
+  //deletes the task
+  const handleDeleteTask = (index) => {
+    setTasks(tasks.filter((_, i) => i !== index));
+  };
+
   return (
     <Box
       sx={{
@@ -55,27 +64,45 @@ function App() {
           {currentDate}
         </Typography>
 
+        <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+          <TextField
+            label="New Task"
+            variant="outlined"
+            fullWidth
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+          />
+          <Button variant="contained" color="primary" onClick={handleAddTask}>
+            Add
+          </Button>
+        </Box>
+
         <FormGroup>
-          <FormControlLabel
-            control={<Checkbox defaultChecked />}
-            label="Task"
-          />
-          <FormControlLabel
-            control={<Checkbox defaultChecked />}
-            label="Task "
-          />
-          <FormControlLabel
-            control={<Checkbox defaultChecked />}
-            label="Task"
-          />
-          <FormControlLabel
-            control={<Checkbox defaultChecked />}
-            label="Task"
-          />
-          <FormControlLabel
-            control={<Checkbox defaultChecked />}
-            label="Task"
-          />
+          {tasks.map((task, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 1,
+                border: "1px solid #ddd",
+                borderRadius: 1,
+                padding: "8px",
+              }}
+            >
+              <FormControlLabel
+                control={<Checkbox />}
+                label={task || "Unnamed Task"}
+              />
+              <IconButton
+                color="secondary"
+                onClick={() => handleDeleteTask(index)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          ))}
         </FormGroup>
       </Box>
     </Box>
