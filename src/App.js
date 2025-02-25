@@ -8,6 +8,8 @@ import {
   Checkbox,
   FormGroup,
   IconButton,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -20,20 +22,32 @@ function App() {
     day: "numeric",
   });
 
-  const [tasks, setTasks] = useState([]);
+  //Task categories and state management
+  const categories = ["Health", "Studies", "Work", "Fun", "Personal"];
+  const [tasks, setTasks] = useState({});
   const [newTask, setNewTask] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
 
-  //adds a new task
+  //adds a new task to selected category
   const handleAddTask = () => {
     if (newTask.trim() !== "") {
-      setTasks([...tasks, newTask.trim()]);
+      setTasks((prevTasks) => ({
+        ...prevTasks,
+        [selectedCategory]: [
+          ...(prevTasks[selectedCategory] || []),
+          newTask.trim(),
+        ],
+      }));
       setNewTask("");
     }
   };
 
   //deletes the task
-  const handleDeleteTask = (index) => {
-    setTasks(tasks.filter((_, i) => i !== index));
+  const handleDeleteTask = (category, index) => {
+    setTasks((prevTasks) => ({
+      ...prevTasks,
+      [category]: prevTasks[category].filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -43,7 +57,7 @@ function App() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#5198df",
+        backgroundColor: "#36aa6d",
         padding: 2,
       }}
     >
@@ -57,12 +71,15 @@ function App() {
           maxWidth: 500,
         }}
       >
+        {/*Title and date display */}
         <Typography variant="h4" gutterBottom>
           To-Do List
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
           {currentDate}
         </Typography>
+
+        {/*Task input, category selecter and add button */}
 
         <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
           <TextField
@@ -71,42 +88,72 @@ function App() {
             fullWidth
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddTask();
+              }
+            }}
           />
-          <Button variant="contained" color="primary" onClick={handleAddTask}>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            sx={{ minWidth: 120 }}
+          >
+            {categories.map((category) => (
+              <MenuItem key={category} value={category}>
+                {category}
+              </MenuItem>
+            ))}
+          </Select>
+
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#5dceff",
+              color: "#fff",
+              "&:hover": { backgroundColor: "#4cb3e8" },
+            }}
+            onClick={handleAddTask}
+          >
             Add
           </Button>
         </Box>
 
-        <FormGroup>
-          {tasks.map((task, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 1,
-                border: "1px solid #ddd",
-                borderRadius: 1,
-                padding: "8px",
-              }}
-            >
-              <FormControlLabel
-                control={<Checkbox />}
-                label={task || "Unnamed Task"}
-              />
-              <IconButton
-                color="secondary"
-                onClick={() => handleDeleteTask(index)}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          ))}
-        </FormGroup>
+        {/*Displays the tasks grouped by categories */}
+        {categories.map((category) => (
+          <Box key={category} sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              {category}
+            </Typography>
+            <FormGroup>
+              {(tasks[category] || []).map((task, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1,
+                    border: "1px solid #ddd",
+                    borderRadius: 1,
+                    padding: "8px",
+                  }}
+                >
+                  <FormControlLabel control={<Checkbox />} label={task} />
+                  <IconButton
+                    color="secondary"
+                    onClick={() => handleDeleteTask(category, index)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              ))}
+            </FormGroup>
+          </Box>
+        ))}
       </Box>
     </Box>
   );
 }
-
 export default App;
