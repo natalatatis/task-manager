@@ -12,6 +12,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 //current date
 function App() {
@@ -27,6 +28,7 @@ function App() {
   const [tasks, setTasks] = useState({});
   const [newTask, setNewTask] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [filterCategory, setFilterCategory] = useState("");
 
   //adds a new task to selected category
   const handleAddTask = () => {
@@ -120,38 +122,60 @@ function App() {
           </Button>
         </Box>
 
+        {/*Filter Dropdown*/}
+        <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+          <FilterListIcon sx={{ color: "gray" }} />
+          <Typography variant="body1">Filter:</Typography>
+          <Select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            sx={{ minWidth: 120, mb: 2 }}
+          >
+            <MenuItem value="">All</MenuItem>
+            {categories.map((category) => (
+              <MenuItem key={category} value={category}>
+                {category}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+
         {/*Displays the tasks grouped by categories */}
-        {categories.map((category) => (
-          <Box key={category} sx={{ mb: 2 }}>
-            <Typography variant="h6" sx={{ mt: 2 }}>
-              {category}
-            </Typography>
-            <FormGroup>
-              {(tasks[category] || []).map((task, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    mb: 1,
-                    border: "1px solid #ddd",
-                    borderRadius: 1,
-                    padding: "8px",
-                  }}
-                >
-                  <FormControlLabel control={<Checkbox />} label={task} />
-                  <IconButton
-                    color="secondary"
-                    onClick={() => handleDeleteTask(category, index)}
+        {categories
+          .filter(
+            (category) => filterCategory === "" || filterCategory === category
+          )
+          .map((category) => (
+            <Box key={category} sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                {category}
+              </Typography>
+              <FormGroup>
+                {(tasks[category] || []).map((task, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      mb: 1,
+                      border: "1px solid #ddd",
+                      borderRadius: 1,
+                      padding: "8px",
+                    }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ))}
-            </FormGroup>
-          </Box>
-        ))}
+                    <FormControlLabel control={<Checkbox />} label={task} />
+                    <IconButton
+                      color="secondary"
+                      onClick={() => handleDeleteTask(category, index)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                ))}
+              </FormGroup>
+            </Box>
+          ))}
       </Box>
     </Box>
   );
